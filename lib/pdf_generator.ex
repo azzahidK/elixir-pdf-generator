@@ -188,7 +188,7 @@ defmodule PdfGenerator do
         # needs `make priv/node_modules` to be run when building
         :code.priv_dir(:pdf_generator) |> to_string()
       end
-      
+
     js_file  = "#{dir}/node_modules/chrome-headless-render-pdf/dist/cli/chrome-headless-render-pdf.js"
 
     {executable, executable_args} =
@@ -216,7 +216,9 @@ defmodule PdfGenerator do
       more_params,
       if(disable_sandbox, do: ["--chrome-option=--no-sandbox"], else: [])
     ])
-    {executable, arguments} |> inspect() |> Logger.debug()
+
+    Logger.info("Running executable for chrome pdf generator")
+    {executable, arguments} |> inspect() |> Logger.info()
     {executable, arguments}
   end
 
@@ -256,8 +258,16 @@ defmodule PdfGenerator do
     {:ok, pdf_file}
   end
 
-  defp result_ok(:chrome,     _string,          0), do: true
-  defp result_ok(:chrome,     _string, _exit_code), do: false
+  defp result_ok(:chrome, string, 0) do
+    Logger.info("PDF generated with message #{inspect string}")
+    true
+  end
+
+  defp result_ok(:chrome, string, _exit_code) do
+    Logger.error("PDF generated with message #{inspect string}")
+    false
+  end
+
   defp result_ok(:wkhtmltopdf, string, _exit_code), do: String.match?(string, ~r/Done/ms)
 
   defp get_command_prefix(options) do
