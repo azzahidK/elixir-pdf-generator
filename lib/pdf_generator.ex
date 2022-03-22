@@ -212,6 +212,7 @@ defmodule PdfGenerator do
         "--pdf", pdf_path,
         "--paper-width",   width,
         "--paper-height", height,
+        "--disable-dev-shm-usage"
       ],
       more_params,
       if(disable_sandbox, do: ["--chrome-option=--no-sandbox"], else: [])
